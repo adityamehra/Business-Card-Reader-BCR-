@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/scrollView" >
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.example.androidocr.MainActivity">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:id="@+id/imageView"
+        android:src="@drawable/test_image3"/>
+
+    <TextView
+        android:layout_width="88dp"
+        android:layout_height="40dp"
+        android:background="#167865"
+        android:id="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="Run OCR!"
+        tools:text="Run OCR!"
+        android:layout_margin="4dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#e4e3e3"
+        android:id="@+id/textView2"
+        android:gravity="center"
+        android:text="Here is the OCR text!"
+        tools:text="Here is the OCR text!"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#e4e3e3"
+        android:id="@+id/textView5"
+        android:gravity="center"
+        tools:text="James Bond!"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#e4e3e3"
+        android:id="@+id/textView4"
+        android:gravity="center"
+        tools:text="Phone Number!"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#e4e3e3"
+        android:id="@+id/textView3"
+        android:gravity="center"
+        tools:text="nooneknows@jamesbond.com!"/>
+
+</LinearLayout>
+</ScrollView>
