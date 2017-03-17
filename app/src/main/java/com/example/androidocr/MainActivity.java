@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         //init image
         image = BitmapFactory.decodeResource(getResources(), R.drawable.test_image3);
 
-
         //initialize Tesseract API
         String language = "eng";
         datapath = getFilesDir()+ "/tesseract/";
@@ -175,17 +174,22 @@ public class MainActivity extends AppCompatActivity {
          // Sets the MIME type to match the Contacts Provider
         intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
 
+        //Checks if we have the name, email and phone number...
         if(displayName.getText().length() > 0 && ( displayPhone.getText().length() > 0 || displayEmail.getText().length() > 0 )){
+            //Adds the name...
             intent.putExtra(ContactsContract.Intents.Insert.NAME, displayName.getText());
 
+            //Adds the email...
             intent.putExtra(ContactsContract.Intents.Insert.EMAIL, displayEmail.getText());
-
+            //Adds the email as Work Email
             intent .putExtra(ContactsContract.Intents.Insert.EMAIL_TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK);
 
+            //Adds the phone number...
             intent.putExtra(ContactsContract.Intents.Insert.PHONE, displayPhone.getText());
-
+            //Adds the phone number as Work Phone
             intent.putExtra(ContactsContract.Intents.Insert.PHONE_TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK);
 
+            //starting the activity...
             startActivity(intent);
         }else{
             Toast.makeText(getApplicationContext(), "No information to add to contacts!", Toast.LENGTH_LONG).show();
