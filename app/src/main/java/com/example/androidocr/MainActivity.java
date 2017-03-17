@@ -1,5 +1,6 @@
 package com.example.androidocr;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -25,11 +26,13 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
-    Bitmap image;
+    private static final int REQUEST_CODE = 1;
+
+    Bitmap image, bitmap;
     private TessBaseAPI mTess;
     String datapath = "";
 
-    ImageView testImage;
+    ImageView imageView;
     TextView runOCR;
     TextView displayText;
     TextView displayEmail;
@@ -50,10 +53,12 @@ public class MainActivity extends AppCompatActivity {
         displayPhone = (TextView) findViewById(R.id.textView4);
         displayEmail = (TextView) findViewById(R.id.textView3);
 
+        imageView = (ImageView) findViewById(R.id.imageView);
+
 
         //init image
         image = BitmapFactory.decodeResource(getResources(), R.drawable.test_image3);
-
+        
         //initialize Tesseract API
         String language = "eng";
         datapath = getFilesDir()+ "/tesseract/";
@@ -62,6 +67,14 @@ public class MainActivity extends AppCompatActivity {
         checkFile(new File(datapath + "tessdata/"));
 
         mTess.init(datapath, language);
+
+        imageView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                getImageFromGallery();
+            }
+        });
+
 
         //run the OCR on the test_image...
         runOCR.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +91,44 @@ public class MainActivity extends AppCompatActivity {
                 addToContacts();
             }
         });
+    }
+
+    private void getImageFromGallery(){
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        InputStream stream = null;
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK){
+            try {
+                // recyle unused bitmaps
+                if (bitmap != null) {
+                    bitmap.recycle();
+                }
+                stream = getContentResolver().openInputStream(data.getData());
+                bitmap = BitmapFactory.decodeStream(stream);
+                image = bitmap;
+
+                imageView.setImageBitmap(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+                    if (stream != null)
+                        try {
+                            stream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+        }
+
+
+
+
     }
 
     public void processImage(){
