@@ -1,13 +1,16 @@
 package com.example.androidocr;
 
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -32,11 +35,21 @@ public class MainActivity extends AppCompatActivity {
     TextView displayEmail;
     TextView displayPhone;
     TextView displayName;
+    TextView openContacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        runOCR = (TextView) findViewById(R.id.textView);
+        openContacts = (TextView) findViewById(R.id.textView6);
+
+        displayText = (TextView) findViewById(R.id.textView2);
+        displayName = (TextView) findViewById(R.id.textView5);
+        displayPhone = (TextView) findViewById(R.id.textView4);
+        displayEmail = (TextView) findViewById(R.id.textView3);
+
 
         //init image
         image = BitmapFactory.decodeResource(getResources(), R.drawable.test_image3);
@@ -51,12 +64,19 @@ public class MainActivity extends AppCompatActivity {
 
         mTess.init(datapath, language);
 
-        //run the OCR on the test_image
-        runOCR = (TextView) findViewById(R.id.textView);
+        //run the OCR on the test_image...
         runOCR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 processImage();
+            }
+        });
+
+        //Add the extracted info from Business Card to the phone's contacts...
+        openContacts.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                addToContacts();
             }
         });
     }
@@ -65,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
         String OCRresult = null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
-        displayText = (TextView) findViewById(R.id.textView2);
         //displayText.setText(OCRresult);
         extractName(OCRresult);
         extractEmail(OCRresult);
@@ -74,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void extractName(String str){
         System.out.println("Getting the Name");
-        displayName = (TextView) findViewById(R.id.textView5);
         final String NAME_REGEX = "^([A-Z]([a-z]*|\\.) *){1,2}([A-Z][a-z]+-?)+$";
         Pattern p = Pattern.compile(NAME_REGEX, Pattern.MULTILINE);
         Matcher m =  p.matcher(str);
@@ -86,8 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void extractEmail(String str) {
         System.out.println("Getting the email");
-        displayEmail = (TextView) findViewById(R.id.textView3);
-        final String EMAIL_REGEX = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
+        final String EMAIL_REGEX = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
         Pattern p = Pattern.compile(EMAIL_REGEX, Pattern.MULTILINE);
         Matcher m = p.matcher(str);   // get a matcher object
         if(m.find()){
@@ -98,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void extractPhone(String str){
         System.out.println("Getting Phone Number");
-        displayPhone = (TextView) findViewById(R.id.textView4);
         final String PHONE_REGEX="(?:^|\\D)(\\d{3})[)\\-. ]*?(\\d{3})[\\-. ]*?(\\d{4})(?:$|\\D)";
         Pattern p = Pattern.compile(PHONE_REGEX, Pattern.MULTILINE);
         Matcher m = p.matcher(str);   // get a matcher object
@@ -150,6 +166,32 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void addToContacts(){
+
+        // Creates a new Intent to insert a contact
+        Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
+         // Sets the MIME type to match the Contacts Provider
+        intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+
+        if(displayName.getText().length() > 0 && ( displayPhone.getText().length() > 0 || displayEmail.getText().length() > 0 )){
+            intent.putExtra(ContactsContract.Intents.Insert.NAME, displayName.getText());
+
+            intent.putExtra(ContactsContract.Intents.Insert.EMAIL, displayEmail.getText());
+
+            intent .putExtra(ContactsContract.Intents.Insert.EMAIL_TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK);
+
+            intent.putExtra(ContactsContract.Intents.Insert.PHONE, displayPhone.getText());
+
+            intent.putExtra(ContactsContract.Intents.Insert.PHONE_TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK);
+
+            startActivity(intent);
+        }else{
+            Toast.makeText(getApplicationContext(), "No information to add to contacts!", Toast.LENGTH_LONG).show();
+        }
+
+
     }
 
 

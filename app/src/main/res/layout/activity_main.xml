@@ -66,5 +66,16 @@
         android:gravity="center"
         tools:text="nooneknows@jamesbond.com!"/>
 
+    <TextView
+        android:layout_width="88dp"
+        android:layout_height="40dp"
+        android:background="#167865"
+        android:id="@+id/textView6"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="Add to Contacts!"
+        tools:text="Run OCR!"
+        android:layout_margin="4dp"/>
+
 </LinearLayout>
 </ScrollView>
