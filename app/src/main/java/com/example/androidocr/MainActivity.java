@@ -5,34 +5,44 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Environment;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.googlecode.tesseract.android.TessBaseAPI;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE = 1;
+    private static final int REQUEST_IMAGE_FROM_GALLERY = 1;
+    static final int REQUEST_IMAGE_CAPTURE = 2;
+    private String mCurrentPhotoPath;
+    File imageFile;
 
     Bitmap image, bitmap;
     private TessBaseAPI mTess;
     String datapath = "";
 
     ImageView imageView;
+    TextView cameraButton;
     TextView runOCR;
     TextView displayText;
     TextView displayEmail;
@@ -45,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        cameraButton = (TextView) findViewById(R.id.textView7);
+
         runOCR = (TextView) findViewById(R.id.textView);
         openContacts = (TextView) findViewById(R.id.textView6);
 
@@ -54,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         displayEmail = (TextView) findViewById(R.id.textView3);
 
         imageView = (ImageView) findViewById(R.id.imageView);
-
 
         //init image
         image = BitmapFactory.decodeResource(getResources(), R.drawable.test_image3);
@@ -75,11 +86,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        cameraButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                captureImage();
+            }
+        });
 
         //run the OCR on the test_image...
         runOCR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                displayEmail.setText("");
+                displayName.setText("");
+                displayPhone.setText("");
                 processImage();
             }
         });
@@ -98,13 +117,13 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, REQUEST_CODE);
+        startActivityForResult(intent, REQUEST_IMAGE_FROM_GALLERY);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
         InputStream stream = null;
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK){
+        if (requestCode == REQUEST_IMAGE_FROM_GALLERY && resultCode == Activity.RESULT_OK){
             try {
                 // recyle unused bitmaps
                 if (bitmap != null) {
@@ -126,12 +145,32 @@ public class MainActivity extends AppCompatActivity {
                         }
         }
 
+        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
+            //Bundle extras = data.getExtras();
+            //Bitmap imageBitmap = (Bitmap) extras.get("data");
+            //image.setImageBitmap(imageBitmap);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 4;
+            Bitmap imageBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, options);
+            image = imageBitmap;
+            int bitmapHeight = imageBitmap.getHeight();
+            int bitmapWidth = imageBitmap.getWidth();
 
+            Log.i("Height", "" + bitmapHeight);
+            Log.i("Width", "" + bitmapWidth);
 
+            if(bitmapHeight >= bitmapWidth){
+                Matrix matrix = new Matrix();
+                matrix.postRotate(270);
+                image = Bitmap.createBitmap(imageBitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, true);
+            }
 
+            imageView.setImageBitmap(image);
+        }
     }
 
     public void processImage(){
+        Toast.makeText(getApplicationContext(), "Runnign OCR!", Toast.LENGTH_LONG).show();
         String OCRresult = null;
         mTess.setImage(image);
         OCRresult = mTess.getUTF8Text();
@@ -193,14 +232,11 @@ public class MainActivity extends AppCompatActivity {
         try {
             //location we want the file to be at
             String filepath = datapath + "/tessdata/eng.traineddata";
-
             //get access to AssetManager
             AssetManager assetManager = getAssets();
-
             //open byte streams for reading/writing
             InputStream instream = assetManager.open("tessdata/eng.traineddata");
             OutputStream outstream = new FileOutputStream(filepath);
-
             //copy the file to the location specified by filepath
             byte[] buffer = new byte[1024];
             int read;
@@ -210,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
             outstream.flush();
             outstream.close();
             instream.close();
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -219,35 +254,54 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addToContacts(){
-
         // Creates a new Intent to insert a contact
         Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
          // Sets the MIME type to match the Contacts Provider
         intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
-
         //Checks if we have the name, email and phone number...
         if(displayName.getText().length() > 0 && ( displayPhone.getText().length() > 0 || displayEmail.getText().length() > 0 )){
             //Adds the name...
             intent.putExtra(ContactsContract.Intents.Insert.NAME, displayName.getText());
-
             //Adds the email...
             intent.putExtra(ContactsContract.Intents.Insert.EMAIL, displayEmail.getText());
             //Adds the email as Work Email
             intent .putExtra(ContactsContract.Intents.Insert.EMAIL_TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK);
-
             //Adds the phone number...
             intent.putExtra(ContactsContract.Intents.Insert.PHONE, displayPhone.getText());
             //Adds the phone number as Work Phone
             intent.putExtra(ContactsContract.Intents.Insert.PHONE_TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK);
-
             //starting the activity...
             startActivity(intent);
         }else{
             Toast.makeText(getApplicationContext(), "No information to add to contacts!", Toast.LENGTH_LONG).show();
         }
-
-
     }
 
+    public void captureImage(){
+        try {
+            createImageFile();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        imageFile = new File(mCurrentPhotoPath);
+        Uri fileUri = Uri.fromFile(imageFile);
+        Intent openCamera  = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        openCamera.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        if(openCamera.resolveActivity(getPackageManager()) != null){
+            startActivityForResult(openCamera, REQUEST_IMAGE_CAPTURE);
+        }
+    }
 
+    //function creates and returns the path of the image, used in camera intent...
+    private void createImageFile() throws IOException{
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpeg",
+                storageDir
+        );
+        mCurrentPhotoPath = image.getAbsolutePath();
+    }
 }
