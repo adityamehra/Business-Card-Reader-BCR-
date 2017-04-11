@@ -19,3 +19,6 @@ Android app to extract name, email and phone from business card using OCR librar
 
 <img src="https://github.com/adityamehra/Business-Card-Reader-BCR-/blob/master/Screenshot_2.png" width="360" height="640" >
 
+# Screenshot 3
+
+<img src="https://github.com/adityamehra/Business-Card-Reader-BCR-/blob/master/Screenshot_3.png" width="360" height="640" >
