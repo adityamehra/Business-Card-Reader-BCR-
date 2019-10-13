@@ -20,20 +20,18 @@
         android:layout_width="wrap_content"
         android:layout_height="200dp"
         android:id="@+id/imageView"
-        android:layout_marginBottom="48dp"
         android:src="@drawable/test_image3"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:background="@drawable/button"
-        android:textColor="@android:color/white"
+        android:layout_width="88dp"
+        android:layout_height="40dp"
+        android:background="#167865"
         android:id="@+id/textView"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
-        android:text="Read business card information"
-        android:layout_marginBottom="12dp"/>
+        android:text="Run OCR!"
+        tools:text="Run OCR!"
+        android:layout_margin="4dp"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -41,7 +39,8 @@
         android:background="#e4e3e3"
         android:id="@+id/textView2"
         android:gravity="center"
-        android:text="Here is the business card text!" />
+        android:text="Here is the OCR text!"
+        tools:text="Here is the OCR text!"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -68,16 +67,15 @@
         tools:text="nooneknows@jamesbond.com!"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:background="@drawable/button"
+        android:layout_width="88dp"
+        android:layout_height="40dp"
+        android:background="#167865"
         android:id="@+id/textView6"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
         android:text="Add to Contacts!"
-        android:textColor="@android:color/white"
-        android:layout_margin="12dp"/>
+        tools:text="Run OCR!"
+        android:layout_margin="4dp"/>
 
 </LinearLayout>
 </ScrollView>
