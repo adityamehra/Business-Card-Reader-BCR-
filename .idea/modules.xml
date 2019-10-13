@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AndroidOCR.iml" filepath="$PROJECT_DIR$/AndroidOCR.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Business-Card-Reader-BCR-.iml" filepath="$PROJECT_DIR$/Business-Card-Reader-BCR-.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
