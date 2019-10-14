@@ -71,6 +71,7 @@
         android:layout_height="40dp"
         android:background="#167865"
         android:id="@+id/textView6"
+        android:visibility="gone"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
         android:text="Add to Contacts!"

@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         extractName(OCRresult);
         extractEmail(OCRresult);
         extractPhone(OCRresult);
+        openContacts.setVisibility(View.VISIBLE);
     }
 
     public void extractName(String str){
